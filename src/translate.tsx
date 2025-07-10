@@ -8,7 +8,7 @@ export default function Command() {
 
   useEffect(() => {
     getSelectedText().then(setSelectedText);
-  }, []);
+  });
 
   const { data, error, isLoading } = usePromise(getAnswer, [{ selectedText }], {
     execute: !!selectedText,
