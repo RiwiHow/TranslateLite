@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { getPreferenceValues } from "@raycast/api";
+import { translationPrompt } from "./prompt";
 
 interface PreferenceProps {
   openaiApiKey: string;
@@ -15,7 +16,8 @@ const client = new OpenAI({ apiKey: openaiApiKey });
 export default async function getAnswer({ selectedText }: getAnswerProps) {
   const response = await client.responses.create({
     model: "gpt-4.1",
-    input: `请把下面的中文翻译成英文：${selectedText}。只需要翻译结果。`,
+    instructions: `${translationPrompt}`,
+    input: `${selectedText}`,
   });
 
   return response.output_text;

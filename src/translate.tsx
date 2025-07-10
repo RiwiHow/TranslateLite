@@ -1,7 +1,7 @@
 import { Detail, getSelectedText, Action, ActionPanel } from "@raycast/api";
 import { usePromise } from "@raycast/utils";
 import { useEffect, useState } from "react";
-import getAnswer from "./fetch";
+import getAnswer from "./OpenAI/fetch";
 
 export default function Command() {
   const [selectedText, setSelectedText] = useState<string>("");
@@ -14,11 +14,17 @@ export default function Command() {
     execute: !!selectedText,
   });
 
-  const errorMes = "Something went wrong!";
-
   return (
     <Detail
-      markdown={error ? errorMes : data}
+      markdown={
+        isLoading
+          ? selectedText
+            ? `Translating: \`${selectedText}\``
+            : "Waiting for text selection..."
+          : error
+            ? error.message
+            : data
+      }
       isLoading={isLoading}
       actions={
         data && !error && !isLoading ? (
