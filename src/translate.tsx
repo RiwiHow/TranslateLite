@@ -19,7 +19,7 @@ export default function Command() {
       markdown={
         isLoading
           ? selectedText
-            ? `Translating: \`${selectedText}\``
+            ? `Processing: \`${selectedText}\``
             : "Waiting for text selection..."
           : error
             ? error.message
