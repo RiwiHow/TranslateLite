@@ -1,36 +1,81 @@
-import { Detail, getSelectedText, Action, ActionPanel } from "@raycast/api";
-import { usePromise } from "@raycast/utils";
+import { Detail, Action, ActionPanel } from "@raycast/api";
 import { useEffect, useState } from "react";
-import getAnswer from "./OpenAI/fetch";
+import getAnswer from "./Providers/QWEN/fetch";
+
+import { useSelectedText } from "./Hooks/useSelectedText";
 
 export default function Command() {
-  const [selectedText, setSelectedText] = useState<string>("");
+  const [translatedText, setTranslatedText] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error>();
+
+  const { selectedText } = useSelectedText();
 
   useEffect(() => {
-    getSelectedText().then(setSelectedText);
-  });
+    if (!selectedText) {
+      return;
+    }
 
-  const { data, error, isLoading } = usePromise(getAnswer, [{ selectedText }], {
-    execute: !!selectedText,
-  });
+    setIsLoading(true);
+    setTranslatedText("");
+    setError(undefined);
+
+    let isCancelled = false;
+
+    async function fetchStreamingTranslation() {
+      try {
+        const stream = getAnswer({ selectedText });
+        for await (const chunk of stream) {
+          if (isCancelled) {
+            break;
+          }
+          setTranslatedText(chunk);
+        }
+      } catch (e) {
+        if (!isCancelled) {
+          setError(e as Error);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    fetchStreamingTranslation();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedText]);
+
+  function getMarkdown() {
+    if (error) {
+      return error.message;
+    }
+    if (translatedText) {
+      return translatedText;
+    }
+    if (isLoading) {
+      return translatedText || `Translating: \`${selectedText}\``;
+    }
+  }
 
   return (
     <Detail
-      markdown={
-        isLoading
-          ? selectedText
-            ? `Processing: \`${selectedText}\``
-            : "Waiting for text selection..."
-          : error
-            ? error.message
-            : data
-      }
+      markdown={getMarkdown()}
       isLoading={isLoading}
       actions={
-        data && !error && !isLoading ? (
+        translatedText && !error && !isLoading ? (
           <ActionPanel>
-            <Action.Paste title="Paste to Active App" content={data} />
-            <Action.CopyToClipboard title="Copy Translation" content={data} />
+            <Action.Paste
+              title="Paste to Active App"
+              content={translatedText}
+            />
+            <Action.CopyToClipboard
+              title="Copy Translation"
+              content={translatedText}
+            />
           </ActionPanel>
         ) : undefined
       }
