@@ -45,23 +45,20 @@ export default async function* getAnswer({ selectedText }: getAnswerProps) {
   let buffer = "";
 
   while (true) {
-    const { done, value } = await reader.read();
-    if (done) {
-      break;
-    }
+    const { value } = await reader.read();
 
-    buffer += decoder.decode(value, { stream: true });
+    buffer = decoder.decode(value, { stream: true });
     const lines = buffer.split("\n");
-    buffer = lines.pop() || "";
+    buffer = "";
 
     for (const line of lines) {
       if (line.startsWith("data: ")) {
         const data = line.substring(6);
-        if (data === "[DONE]") {
+        const json = JSON.parse(data);
+        if (json.choices[0]?.finish_reason === "stop") {
           return;
         }
         try {
-          const json = JSON.parse(data);
           const content = json.choices[0]?.delta?.content;
           if (content) {
             yield content;

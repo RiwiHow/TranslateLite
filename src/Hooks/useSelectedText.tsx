@@ -1,10 +1,10 @@
-import { useEffect, useState, useRef } from "react";
 import { getSelectedText } from "@raycast/api";
+import { useEffect, useRef, useState } from "react";
 
 export function useSelectedText() {
   const [selectedText, setSelectedText] = useState("");
   const [error, setError] = useState<Error>();
-  const textRef = useRef(selectedText);
+  const textRef = useRef(selectedText); // To fix the issue where selectedText cannot be accurately retrieved in developer mode
   textRef.current = selectedText;
 
   useEffect(() => {
@@ -19,5 +19,5 @@ export function useSelectedText() {
       });
   }, []);
 
-  return { selectedText, error };
+  return { selectedText, error, setError };
 }

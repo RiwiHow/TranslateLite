@@ -1,15 +1,12 @@
-import { Detail, Action, ActionPanel } from "@raycast/api";
+import { Action, ActionPanel, Detail } from "@raycast/api";
 import { useEffect, useState } from "react";
-import getAnswer from "./Providers/QWEN/fetch";
-
 import { useSelectedText } from "./Hooks/useSelectedText";
+import getAnswer from "./Providers/QWEN/fetch";
 
 export default function Command() {
   const [translatedText, setTranslatedText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error>();
-
-  const { selectedText } = useSelectedText();
+  const { selectedText, error, setError } = useSelectedText();
 
   useEffect(() => {
     if (!selectedText) {
