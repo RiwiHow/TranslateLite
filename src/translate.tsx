@@ -1,6 +1,7 @@
 import { Action, ActionPanel, Detail } from "@raycast/api";
 import { useEffect, useState } from "react";
 import { useSelectedText } from "./Hooks/useSelectedText";
+import pangu from "pangu";
 import getAnswer from "./Providers/QWEN/fetch";
 
 export default function Command() {
@@ -56,7 +57,7 @@ export default function Command() {
     if (target_lang === "English") {
       return translatedText;
     } else {
-      return `${selectedText}\n${translatedText}`;
+      return `${selectedText}\n${pangu.spacingText(translatedText)}`;
     }
   }
 
