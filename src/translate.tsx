@@ -8,6 +8,9 @@ export default function Command() {
   const [isLoading, setIsLoading] = useState(true);
   const { selectedText, error, setError } = useSelectedText();
 
+  const hasChinese = /[\u4e00-\u9fa5]/.test(selectedText);
+  const target_lang = hasChinese ? "English" : "Chinese";
+
   useEffect(() => {
     if (!selectedText) {
       return;
@@ -21,7 +24,7 @@ export default function Command() {
 
     async function fetchStreamingTranslation() {
       try {
-        const stream = getAnswer({ selectedText });
+        const stream = getAnswer({ selectedText, target_lang });
         for await (const chunk of stream) {
           if (isCancelled) {
             break;
@@ -47,14 +50,13 @@ export default function Command() {
   }, [selectedText]);
 
   function getMarkdown() {
-    if (error) {
-      return error.message;
-    }
-    if (translatedText) {
+    if (error) return error.message;
+    if (isLoading) return translatedText || `Translating: ${selectedText}`;
+
+    if (target_lang === "English") {
       return translatedText;
-    }
-    if (isLoading) {
-      return translatedText || `Translating: \`${selectedText}\``;
+    } else {
+      return `${selectedText}\n${translatedText}`;
     }
   }
 

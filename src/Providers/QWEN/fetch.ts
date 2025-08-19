@@ -6,11 +6,15 @@ interface PreferenceProps {
 
 interface getAnswerProps {
   selectedText: string;
+  target_lang: string;
 }
 
 const { qwenApiKey } = getPreferenceValues<PreferenceProps>();
 
-export default async function* getAnswer({ selectedText }: getAnswerProps) {
+export default async function* getAnswer({
+  selectedText,
+  target_lang,
+}: getAnswerProps) {
   const response = await fetch(
     "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
     {
@@ -30,7 +34,7 @@ export default async function* getAnswer({ selectedText }: getAnswerProps) {
         stream: true,
         translation_options: {
           source_lang: "auto",
-          target_lang: "English",
+          target_lang: target_lang,
         },
       }),
     }
