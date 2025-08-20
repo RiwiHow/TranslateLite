@@ -57,7 +57,7 @@ export default function Command() {
     if (target_lang === "English") {
       return translatedText;
     } else {
-      return `${selectedText}\n${pangu.spacingText(translatedText)}`;
+      return `${selectedText}\n\n${pangu.spacingText(translatedText)}`;
     }
   }
 
