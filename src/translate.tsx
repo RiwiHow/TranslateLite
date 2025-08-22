@@ -1,31 +1,61 @@
 import { Action, ActionPanel, Detail } from "@raycast/api";
-import { useEffect, useState } from "react";
-import { useSelectedText } from "./Hooks/useSelectedText";
 import pangu from "pangu";
+import { useEffect, useMemo, useState } from "react";
+import useClipboard from "./Hooks/useClipboard";
+import { useSelectedText } from "./Hooks/useSelectedText";
 import getAnswer from "./Providers/QWEN/fetch";
 
 export default function Command() {
   const [translatedText, setTranslatedText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const { selectedText, error, setError } = useSelectedText();
+  const [error, setError] = useState("");
 
-  const hasChinese = /[\u4e00-\u9fa5]/.test(selectedText);
-  const target_lang = hasChinese ? "English" : "Chinese";
+  const { selectedText, selectedTextError } = useSelectedText();
+  const { clipboardText, clipboardTextError } = useClipboard();
+
+  const textToTranslate = useMemo(() => {
+    return selectedText || clipboardText;
+  }, [selectedText, clipboardText]);
+
+  const { target_lang } = useMemo(() => {
+    const hasChinese = /[\u4e00-\u9fa5]/.test(textToTranslate);
+    return {
+      target_lang: hasChinese ? "English" : "Chinese",
+    };
+  }, [textToTranslate]);
 
   useEffect(() => {
-    if (!selectedText) {
+    if (textToTranslate) {
+      setError("");
+      return;
+    }
+
+    if (selectedTextError) {
+      setError(selectedTextError.message);
+    } else if (clipboardTextError) {
+      setError(clipboardTextError);
+    } else {
+      setError("No text found to translate");
+    }
+  }, [textToTranslate, selectedTextError, clipboardTextError]);
+
+  useEffect(() => {
+    if (!textToTranslate) {
+      setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
     setTranslatedText("");
-    setError(undefined);
 
     let isCancelled = false;
 
     async function fetchStreamingTranslation() {
       try {
-        const stream = getAnswer({ selectedText, target_lang });
+        const stream = getAnswer({
+          selectedText: textToTranslate,
+          target_lang,
+        });
         for await (const chunk of stream) {
           if (isCancelled) {
             break;
@@ -34,7 +64,7 @@ export default function Command() {
         }
       } catch (e) {
         if (!isCancelled) {
-          setError(e as Error);
+          setError((e as Error).message || "Translation failed");
         }
       } finally {
         if (!isCancelled) {
@@ -48,16 +78,19 @@ export default function Command() {
     return () => {
       isCancelled = true;
     };
-  }, [selectedText]);
+  }, [textToTranslate, target_lang]);
 
   function getMarkdown() {
-    if (error) return error.message;
-    if (isLoading) return translatedText || `Translating: ${selectedText}`;
+    if (error) {
+      return error;
+    }
+
+    if (isLoading) return translatedText || `Translating: ${textToTranslate}`;
 
     if (target_lang === "English") {
       return translatedText;
     } else {
-      return `${selectedText}\n\n${pangu.spacingText(translatedText)}`;
+      return `${textToTranslate}\n\n${pangu.spacingText(translatedText)}`;
     }
   }
 

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 export function useSelectedText() {
   const [selectedText, setSelectedText] = useState("");
-  const [error, setError] = useState<Error>();
+  const [selectedTextError, setSelectedTextError] = useState<Error>();
   const textRef = useRef(selectedText); // To fix the issue where selectedText cannot be accurately retrieved in developer mode
   textRef.current = selectedText;
 
@@ -15,9 +15,9 @@ export function useSelectedText() {
         }
       })
       .catch((err) => {
-        setError(err);
+        setSelectedTextError(err);
       });
   }, []);
 
-  return { selectedText, error, setError };
+  return { selectedText, selectedTextError};
 }
