@@ -31,7 +31,7 @@ export default function Command() {
     }
 
     if (selectedTextError) {
-      setError(selectedTextError.message);
+      setError(selectedTextError);
     } else if (clipboardTextError) {
       setError(clipboardTextError);
     } else {
