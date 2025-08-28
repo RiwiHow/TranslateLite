@@ -92,7 +92,7 @@ export default function Command() {
     } else {
       return `${textToTranslate}\n\n${pangu.spacingText(translatedText)}`;
     }
-  }, [error, isLoading, translatedText, textToTranslate, target_lang]); // 添加依赖
+  }, [error, isLoading, translatedText, textToTranslate, target_lang]);
 
   return (
     <Detail
