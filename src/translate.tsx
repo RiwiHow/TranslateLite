@@ -80,7 +80,7 @@ export default function Command() {
     };
   }, [textToTranslate, target_lang]);
 
-  const getMarkdown = useMemo(() => {
+  const getMarkdown = () => {
     if (error) {
       return error;
     }
@@ -92,11 +92,11 @@ export default function Command() {
     } else {
       return `${textToTranslate}\n\n${pangu.spacingText(translatedText)}`;
     }
-  }, [error, isLoading, translatedText, textToTranslate, target_lang]);
+  };
 
   return (
     <Detail
-      markdown={getMarkdown}
+      markdown={getMarkdown()}
       isLoading={isLoading}
       actions={
         translatedText && !error && !isLoading ? (
