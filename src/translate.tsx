@@ -80,19 +80,19 @@ export default function Command() {
     };
   }, [textToTranslate, target_lang]);
 
-  const getMarkdown = () => {
+  function getMarkdown() {
     if (error) {
       return error;
     }
 
-    if (isLoading) return translatedText || `Translating: ${textToTranslate}`;
+    const baseText = translatedText;
+    const formattedText =
+      target_lang === "English"
+        ? baseText
+        : `${textToTranslate}\n\n${pangu.spacingText(baseText)}`;
 
-    if (target_lang === "English") {
-      return translatedText;
-    } else {
-      return `${textToTranslate}\n\n${pangu.spacingText(translatedText)}`;
-    }
-  };
+    return formattedText;
+  }
 
   return (
     <Detail
