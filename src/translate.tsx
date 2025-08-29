@@ -85,13 +85,7 @@ export default function Command() {
       return error;
     }
 
-    const baseText = translatedText;
-    const formattedText =
-      target_lang === "English"
-        ? baseText
-        : `${textToTranslate}\n\n${pangu.spacingText(baseText)}`;
-
-    return formattedText;
+    return `${textToTranslate}\n\n${pangu.spacingText(translatedText)}`;
   }
 
   return (
@@ -108,6 +102,7 @@ export default function Command() {
             <Action.CopyToClipboard
               title="Copy Translation"
               content={translatedText}
+              shortcut={{ modifiers: ["cmd"], key: "c" }}
             />
           </ActionPanel>
         ) : undefined
