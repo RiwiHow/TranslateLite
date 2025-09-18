@@ -16,13 +16,6 @@
   ],
   "preferences": [
     {
-      "name": "openaiApiKey",
-      "title": "OpenAI API Key",
-      "description": "Your API Key from OpenAI",
-      "type": "password",
-      "required": true
-    },
-    {
       "name": "qwenApiKey",
       "title": "QWEN API Key",
       "description": "Your API Key from QWEN",
